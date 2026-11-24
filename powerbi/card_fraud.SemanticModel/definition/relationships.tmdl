@@ -1,0 +1,12 @@
+relationship fact_card
+	fromColumn: fact_transactions.card_id
+	toColumn: dim_card.card_id
+
+relationship fact_merchant
+	fromColumn: fact_transactions.merchant_id
+	toColumn: dim_merchant.merchant_id
+
+relationship fact_date
+	fromColumn: fact_transactions.date_key
+	toColumn: dim_date.date_key
+

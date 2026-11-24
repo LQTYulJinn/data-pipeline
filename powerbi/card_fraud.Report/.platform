@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "card_fraud"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "86a5998e-93ad-40d1-8c2b-35e6b738ae4f"
+  }
+}

@@ -1,0 +1,5 @@
+expression GoldFolder = "C:\Users\thinh\Demo\Personal\data-pipeline\output\full-combined\gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 83b8096a-904d-406a-b259-5e16c229f59c
+
+	annotation PBI_ResultType = Text
+

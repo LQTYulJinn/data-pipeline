@@ -1,0 +1,37 @@
+table dim_date
+	lineageTag: dim_date
+
+	column date_key
+		dataType: string
+		lineageTag: 7b0a0bc7-b82e-45da-8daf-3cc63f6a8698
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column calendar_year
+		dataType: int64
+		lineageTag: 110a8b7c-d85f-4e4c-b158-275c03370c1a
+		summarizeBy: none
+		sourceColumn: calendar_year
+
+	column calendar_month
+		dataType: int64
+		lineageTag: 48fa419f-0824-4e54-bb5e-c9da4465e6ed
+		summarizeBy: none
+		sourceColumn: calendar_month
+
+	column day_of_month
+		dataType: int64
+		lineageTag: dc7c3ca5-5c33-4e44-9c6c-3bc978d46494
+		summarizeBy: none
+		sourceColumn: day_of_month
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(GoldFolder & "\dim_date.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"date_key", type text}, {"calendar_year", Int64.Type}, {"calendar_month", Int64.Type}, {"day_of_month", Int64.Type}}, "en-US")
+				in
+				    Typed
+

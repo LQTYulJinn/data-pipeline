@@ -30,7 +30,14 @@ For a sample use `--limit 20000` with just the train `--input`; this limit appli
 
 ## Airflow Docker Compose
 
-Set `SPARKOV_DIR` to the absolute directory containing both CSV files, `CARD_HASH_SALT` to a private value, and `AIRFLOW_DB_PASSWORD` to a local Postgres password; keep these values out of Git. Then run `docker compose up --build` and trigger `card_pipeline` in the UI at localhost:8080. Compose mounts the source read-only at `/opt/airflow/source`, project at `/opt/airflow/project`, and uses a local Postgres metadata service for `LocalExecutor`. The DAG defaults to the full combined run; set `PIPELINE_ROW_LIMIT` to a positive number for a per-file sample. `quality_checks` runs `dbt build`, so failing tests block `publish`. The Dockerfile installs Java 17 and project Python dependencies. Docker was absent during this measured run; the Compose DAG was written and inspected but **not executed**.
+Set `SPARKOV_DIR` to the absolute directory containing both CSV files, `CARD_HASH_SALT` to a private value, and `AIRFLOW_DB_PASSWORD` to a local Postgres password; keep these values out of Git. Then run `docker compose up --build` and trigger `card_pipeline` in the UI at localhost:8080. Compose mounts the source read-only at `/opt/airflow/source`, project at `/opt/airflow/project`, and uses a local Postgres metadata service for `LocalExecutor`. The DAG defaults to the full combined run; set `PIPELINE_ROW_LIMIT` to a positive number for a per-file sample. `quality_checks` runs `dbt build`, so failing tests block `publish`. The Dockerfile installs Java 17 and project Python dependencies. The Compose DAG was executed in Docker Desktop (Airflow 2.10.5, LocalExecutor). Measured task times (wall clock from Airflow task start/end):
+
+| Run | ingest | transform | quality_checks (dbt 23/23 pass) | publish | DAG total |
+|---|---|---|---|---|---|
+| Sample: `PIPELINE_ROW_LIMIT=200000` per file = 400,000 rows; WSL capped at 6 GB / 4 CPUs / 4 GB swap, Spark driver 2g | 1.0 s | 83.2 s | 14.0 s | 2.9 s | 115.2 s |
+| Full: 1,852,394 rows; earlier run on uncapped WSL (8 GB, 8 CPUs), Spark driver 4g | 1.0 s | 135.2 s | 19.0 s | 8.1 s | 169.7 s |
+
+Caveats: single runs, no repeats. The first full attempt failed in `quality_checks` for a reason that was not captured (dbt output was not in the task log); two later full runs passed, so treat that failure as unexplained. The DAG now prints dbt output into the task log. The host restarted twice during these sessions while Docker/Spark/Power BI were running; the cause was not established, so the sample run uses the memory caps above and a 2g driver (`SPARK_DRIVER_MEMORY`, default 2g in Compose).
 
 ## Power BI
 
@@ -43,7 +50,7 @@ Fraud Transactions = CALCULATE([Transactions], fact_transactions[fraud_label] = 
 Fraud Rate = DIVIDE([Fraud Transactions], [Transactions])
 ```
 
-Power BI Desktop is not installed here; no `.pbix` was created or verified. The CSV and Parquet gold exports were verified locally.
+`powerbi/card_fraud.pbip` is a Power BI Project (TMDL semantic model + one report page) with the four gold CSVs, the three many-to-one relationships above, and measures `Transaction Count`, `Total Amount`, `Fraud Count`, `Fraud Rate`, `Fraud Amount`, `Avg Ticket`. It was opened in Power BI Desktop and refreshed against `output/full-combined/gold`; the cards showed 2M transactions, 0.52% fraud rate and $5M fraud amount, matching a direct CSV count (1,852,394 rows, 9,651 fraud, 0.521%, $5.12M). Screenshot: `docs/powerbi-dashboard.png`. The CSV folder is the `GoldFolder` parameter in `powerbi/card_fraud.SemanticModel/definition/model.tmdl` and is an absolute path on this machine; edit it first. No `.pbix` binary was produced (Desktop's Save As was not automated); use File > Save As in Desktop to make one.
 
 ## Measured full local run (2026-11-24)
 

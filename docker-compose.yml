@@ -22,6 +22,7 @@ services:
       CARD_HASH_SALT: ${CARD_HASH_SALT:?Set a private card hash salt}
       SPARKOV_SOURCE: /opt/airflow/source/fraudTrain.csv
       SPARKOV_TEST_SOURCE: /opt/airflow/source/fraudTest.csv
+      SPARK_DRIVER_MEMORY: ${SPARK_DRIVER_MEMORY:-2g}
       PIPELINE_ROW_LIMIT: ${PIPELINE_ROW_LIMIT:-0}
       PIPELINE_DB: /opt/airflow/project/output/airflow/warehouse.duckdb
       BRONZE_GLOB: /opt/airflow/project/output/airflow/bronze/*.parquet

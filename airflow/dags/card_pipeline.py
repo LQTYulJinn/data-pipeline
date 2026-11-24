@@ -37,8 +37,11 @@ def quality_checks():
     if report['rows_after'] == 0 or any(report[k] for k in
         ['null_rows_after', 'duplicate_ids_after', 'out_of_range_rows_after']):
         raise ValueError('Quality gate failed')
-    subprocess.run(['dbt', 'build', '--project-dir', str(ROOT / 'dbt'),
-                    '--profiles-dir', str(ROOT / 'dbt')], cwd=ROOT, check=True)
+    result = subprocess.run(['dbt', 'build', '--project-dir', str(ROOT / 'dbt'),
+                             '--profiles-dir', str(ROOT / 'dbt')], cwd=ROOT,
+                            capture_output=True, text=True)
+    print(result.stdout[-6000:], result.stderr[-2000:])  # subprocess output is otherwise lost from the task log
+    result.check_returncode()
 
 
 def publish():

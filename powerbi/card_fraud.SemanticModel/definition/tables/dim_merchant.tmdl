@@ -1,0 +1,31 @@
+table dim_merchant
+	lineageTag: dim_merchant
+
+	column merchant_id
+		dataType: string
+		lineageTag: 7ab5e68a-8f16-44f5-a1b6-dba3b1fc74d6
+		summarizeBy: none
+		sourceColumn: merchant_id
+
+	column category
+		dataType: string
+		lineageTag: 3c7c9a2e-d54c-4470-98b1-3ced6c794252
+		summarizeBy: none
+		sourceColumn: category
+
+	column transaction_count
+		dataType: int64
+		lineageTag: d12dc2ec-4b4e-4ad2-9e4c-2ed344df1549
+		summarizeBy: none
+		sourceColumn: transaction_count
+
+	partition dim_merchant = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(GoldFolder & "\dim_merchant.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"merchant_id", type text}, {"category", type text}, {"transaction_count", Int64.Type}}, "en-US")
+				in
+				    Typed
+

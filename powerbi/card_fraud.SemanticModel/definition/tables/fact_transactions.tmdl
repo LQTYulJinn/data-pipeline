@@ -1,0 +1,103 @@
+table fact_transactions
+	lineageTag: fact_transactions
+
+	measure 'Transaction Count' = COUNTROWS(fact_transactions)
+		formatString: #,0
+		lineageTag: c7e7afa0-9b35-4c17-8e60-ba922da41dbf
+
+	measure 'Total Amount' = SUM(fact_transactions[amount])
+		formatString: $#,0
+		lineageTag: dfef37c8-55e0-43b3-a818-594a1707e519
+
+	measure 'Fraud Count' = CALCULATE(COUNTROWS(fact_transactions), fact_transactions[fraud_label] = 1)
+		formatString: #,0
+		lineageTag: 28f6473c-e463-495b-939c-53d2de99bf61
+
+	measure 'Fraud Rate' = DIVIDE([Fraud Count], [Transaction Count])
+		formatString: 0.00%
+		lineageTag: 65d1e1ac-7666-4709-b162-1ed711deed14
+
+	measure 'Fraud Amount' = CALCULATE(SUM(fact_transactions[amount]), fact_transactions[fraud_label] = 1)
+		formatString: $#,0
+		lineageTag: 2dcdc6f1-cf83-4834-8b12-b7e848e8ae04
+
+	measure 'Avg Ticket' = AVERAGE(fact_transactions[amount])
+		formatString: $#,0.00
+		lineageTag: c41a5b31-39ff-4180-9df5-d7c60f05197b
+
+	column transaction_id
+		dataType: string
+		lineageTag: 6e6bc713-7413-421c-98a4-158eac2ec572
+		summarizeBy: none
+		sourceColumn: transaction_id
+
+	column event_time
+		dataType: dateTime
+		lineageTag: b1d32e8c-a215-4b7f-816a-a368e796d2f4
+		summarizeBy: none
+		sourceColumn: event_time
+
+	column date_key
+		dataType: string
+		lineageTag: f5f96aba-467f-4e4a-8031-45418170190f
+		summarizeBy: none
+		sourceColumn: date_key
+
+	column source_file
+		dataType: string
+		lineageTag: fd86cd6b-71c8-416a-a6d2-188fae8eb94d
+		summarizeBy: none
+		sourceColumn: source_file
+
+	column card_id
+		dataType: string
+		lineageTag: 66c29954-9667-4d00-a3ed-704afb27ffe5
+		summarizeBy: none
+		sourceColumn: card_id
+
+	column merchant_id
+		dataType: string
+		lineageTag: 66818ca3-b9b2-441d-93bd-4b9ac758b648
+		summarizeBy: none
+		sourceColumn: merchant_id
+
+	column amount
+		dataType: double
+		lineageTag: fa23b150-ac1e-497e-b31d-8cccd1bbb6b9
+		summarizeBy: none
+		sourceColumn: amount
+
+	column fraud_label
+		dataType: int64
+		lineageTag: fd2cff72-288d-4c0e-b455-006d7d23ff25
+		summarizeBy: none
+		sourceColumn: fraud_label
+
+	column prior_txn_count
+		dataType: int64
+		lineageTag: 1bbaf8cd-88b6-434b-9020-976cffa92d73
+		summarizeBy: none
+		sourceColumn: prior_txn_count
+
+	column prior_1h_count
+		dataType: int64
+		lineageTag: 1895bc63-6ee0-4034-b44c-170bb0b496f5
+		summarizeBy: none
+		sourceColumn: prior_1h_count
+
+	column prior_24h_count
+		dataType: int64
+		lineageTag: 6b4f8e25-99d5-468d-9c49-62d8e3dce199
+		summarizeBy: none
+		sourceColumn: prior_24h_count
+
+	partition fact_transactions = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(GoldFolder & "\fact_transactions.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"transaction_id", type text}, {"event_time", type datetime}, {"date_key", type text}, {"source_file", type text}, {"card_id", type text}, {"merchant_id", type text}, {"amount", type number}, {"fraud_label", Int64.Type}, {"prior_txn_count", Int64.Type}, {"prior_1h_count", Int64.Type}, {"prior_24h_count", Int64.Type}}, "en-US")
+				in
+				    Typed
+

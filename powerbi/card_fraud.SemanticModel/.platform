@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "card_fraud"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "228a30a9-442f-4c15-af18-339c1cee95b3"
+  }
+}
