@@ -26,7 +26,7 @@ C:\dpvenv\Scripts\python.exe -m pipeline.export --database output/full-combined/
 C:\dpvenv\Scripts\python.exe -m pipeline.audit --run-dir output/full-combined
 ```
 
-For a sample use `--limit 20000` with just the train `--input`; this limit applies per source when multiple inputs are given. For the CI fixture use `--input fixtures/synthetic.csv --run-id ci`; set `PIPELINE_DB` and `BRONZE_GLOB` to `output/ci/...` before `dbt build`. The workflow in `.github/workflows/ci.yml` uses Linux Java 17 and runs these equivalent Spark, dbt build, fixture assertion and export commands. It is present locally but has **not run on GitHub** because this repo has no remote.
+For a sample use `--limit 20000` with just the train `--input`; this limit applies per source when multiple inputs are given. For the CI fixture use `--input fixtures/synthetic.csv --run-id ci`; set `PIPELINE_DB` and `BRONZE_GLOB` to `output/ci/...` before `dbt build`. The workflow in `.github/workflows/ci.yml` uses Linux Java 17 and runs these equivalent Spark, dbt build, fixture assertion and export commands. The public repository is `https://github.com/LQTYulJinn/data-pipeline`; its initial fixture workflow [passed](https://github.com/LQTYulJinn/data-pipeline/actions/runs/45382305822). The full Sparkov run was measured locally, not in GitHub Actions.
 
 ## Airflow Docker Compose
 
