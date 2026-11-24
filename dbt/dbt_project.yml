@@ -1,0 +1,9 @@
+name: card_pipeline
+version: '1.0'
+config-version: 2
+profile: card_pipeline
+model-paths: ['models']
+test-paths: ['tests']
+models:
+  card_pipeline:
+    +materialized: table

@@ -1,0 +1,6 @@
+trans_date_trans_time,cc_num,merchant,category,amt,trans_num,is_fraud
+2019-01-01 00:00:00,1001,shop_a,grocery_pos,10.00,a1,0
+2019-01-01 00:30:00,1001,shop_b,misc_net,20.00,a2,0
+2019-01-01 02:00:00,1001,shop_a,grocery_pos,15.00,a3,1
+2019-01-01 00:10:00,1002,shop_a,grocery_pos,5.00,b1,0
+2019-01-02 00:00:00,1002,shop_c,gas_transport,8.00,b2,0

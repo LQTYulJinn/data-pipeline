@@ -1,0 +1,22 @@
+name: pipeline
+on: [push, pull_request]
+jobs:
+  fixture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: pip install -r requirements.txt
+      - run: python -m pipeline.run --input fixtures/synthetic.csv --output output --run-id ci
+      - run: dbt build --project-dir dbt --profiles-dir dbt
+        env:
+          PIPELINE_DB: output/ci/warehouse.duckdb
+          BRONZE_GLOB: output/ci/bronze/*.parquet
+      - run: python -m pipeline.verify_fixture
+      - run: python -m pipeline.export --database output/ci/warehouse.duckdb --output output/ci/gold

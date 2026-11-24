@@ -1,0 +1,41 @@
+version: 2
+models:
+  - name: fact_transactions
+    columns:
+      - name: transaction_id
+        tests: [not_null, unique]
+      - name: card_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_card')
+              field: card_id
+      - name: merchant_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_merchant')
+              field: merchant_id
+      - name: date_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: fraud_label
+        tests:
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+  - name: dim_card
+    columns:
+      - name: card_id
+        tests: [not_null, unique]
+  - name: dim_merchant
+    columns:
+      - name: merchant_id
+        tests: [not_null, unique]
+  - name: dim_date
+    columns:
+      - name: date_key
+        tests: [not_null, unique]

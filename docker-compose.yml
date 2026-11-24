@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: ${AIRFLOW_DB_PASSWORD:?Set a local Airflow database password}
+      POSTGRES_DB: airflow
+    volumes:
+      - ./state/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U airflow']
+      interval: 5s
+      retries: 12
+  airflow:
+    build: .
+    command: standalone
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${AIRFLOW_DB_PASSWORD:?Set a local Airflow database password}@postgres/airflow
+      SPARK_LOCAL_IP: 127.0.0.1
+      CARD_HASH_SALT: ${CARD_HASH_SALT:?Set a private card hash salt}
+      SPARKOV_SOURCE: /opt/airflow/source/fraudTrain.csv
+      SPARKOV_TEST_SOURCE: /opt/airflow/source/fraudTest.csv
+      PIPELINE_ROW_LIMIT: ${PIPELINE_ROW_LIMIT:-0}
+      PIPELINE_DB: /opt/airflow/project/output/airflow/warehouse.duckdb
+      BRONZE_GLOB: /opt/airflow/project/output/airflow/bronze/*.parquet
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/project/airflow/dags
+    volumes:
+      - ./:/opt/airflow/project
+      - ${SPARKOV_DIR:?Set absolute directory containing fraudTrain.csv}:/opt/airflow/source:ro
+      - ./state:/opt/airflow/state
+    ports:
+      - '8080:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy

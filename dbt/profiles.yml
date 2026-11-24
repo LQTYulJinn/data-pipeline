@@ -1,0 +1,7 @@
+card_pipeline:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('PIPELINE_DB', 'output/local/warehouse.duckdb') }}"
+      threads: 2
